@@ -12,14 +12,16 @@ export async function createValuationController(request: FastifyRequest, reply: 
   }
 
   const body = parsed.data;
-  if (body.mode === 'quick' && !body.imageHint?.trim() && !buildHasText(body)) {
-    return reply.code(400).send({ message: 'Product image or search hint is required for quick scan' });
-  }
   if (body.mode === 'detailed' && !body.title?.trim()) {
     return reply.code(400).send({ message: 'Product title is required for detailed analysis' });
   }
 
-  const data = await runValuation(body);
+  const valuationInput =
+    body.mode === 'quick' && !body.imageHint?.trim() && !buildHasText(body)
+      ? { ...body, imageHint: 'product' }
+      : body;
+
+  const data = await runValuation(valuationInput);
   return reply.send({ success: true, data });
 }
 

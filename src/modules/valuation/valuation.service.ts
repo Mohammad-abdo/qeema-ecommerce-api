@@ -122,14 +122,17 @@ export async function runValuation(body: ValuationBody): Promise<ValuationResult
   const categorySlug = body.categorySlug?.trim() || undefined;
 
   let items: ProductRow[] = [];
-  if (search.length >= 2 || categorySlug) {
+  const searchTerm = search.length >= 2 ? search : categorySlug ? undefined : 'product';
+  try {
     const listed = await listProducts({
       page: 1,
       limit: 24,
-      search: search.length >= 2 ? search : undefined,
+      search: search.length >= 2 ? search : searchTerm,
       category: categorySlug,
     });
     items = listed.items;
+  } catch {
+    items = [];
   }
 
   const prices = items.map(productPrice).filter((p) => p > 0);
