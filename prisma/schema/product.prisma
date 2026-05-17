@@ -1,0 +1,662 @@
+model Merchant {
+  id                 Int            @id @default(autoincrement())
+  user_id            Int            @unique
+  store_name         String
+  store_slug         String         @unique
+  store_logo         String?
+  store_banner       String?
+  store_description  String?        @db.Text
+  business_type      BusinessType
+  tax_number         String?
+  commercial_register String?
+  status             MerchantStatus @default(pending)
+  rejection_reason   String?
+  commission_rate    Decimal        @db.Decimal(5, 2) @default(10)
+  is_featured        Boolean        @default(false)
+  featured_until     DateTime?
+  balance            Decimal        @db.Decimal(12, 2) @default(0)
+  pending_balance    Decimal        @db.Decimal(12, 2) @default(0)
+  total_sales        Decimal        @db.Decimal(12, 2) @default(0)
+  total_orders       Int            @default(0)
+  rating             Decimal        @db.Decimal(3, 2) @default(0)
+  rating_count       Int            @default(0)
+  approved_at        DateTime?
+  approved_by        Int?
+  deleted_at         DateTime?
+  suspended_at       DateTime?
+  suspension_reason  String?        @db.Text
+  banned_at          DateTime?
+  ban_reason         String?        @db.Text
+  last_moderated_at  DateTime?
+  last_moderated_by  Int?
+  created_at         DateTime       @default(now())
+  updated_at         DateTime       @updatedAt
+  user               User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  approver           User?          @relation("MerchantApprover", fields: [approved_by], references: [id], onDelete: SetNull)
+  merchant_moderator User?          @relation("MerchantModerationActor", fields: [last_moderated_by], references: [id], onDelete: SetNull)
+  products           Product[]
+  sub_orders         SubOrder[]
+  documents          MerchantDocument[]
+  settings           MerchantSettings?
+  commissions        Commission[]
+  payouts            Payout[]
+  inventory_logs     InventoryLog[]
+  ad_campaigns       AdCampaign[]
+  store_reviews      StoreReview[]
+  market_links       MarketMerchant[]
+  ad_campaign_store_items AdCampaignItem[]
+  support_tickets    SupportTicket[]
+  translation_namespaces TranslationNamespace[]
+  report_definitions       ReportDefinition[]
+  report_runs              ReportRun[]
+  report_schedules         ReportSchedule[]
+  warehouses               Warehouse[]
+  search_entries           SearchIndex[]
+  site_listings            SiteListing[]
+  special_offers           SpecialOffer[]
+
+  @@index([status])
+  @@index([store_slug])
+  @@index([created_at])
+  @@index([deleted_at])
+  @@index([suspended_at])
+  @@index([banned_at])
+}
+
+model Product {
+  id          Int           @id @default(autoincrement())
+  merchant_id Int
+  category_id Int?
+  brand_id    Int?
+  name_ar     String
+  name_en     String
+  slug        String        @unique
+  external_id String?       @unique
+  description_ar String?    @db.LongText
+  description_en String?    @db.LongText
+  short_description_ar String? @db.Text
+  short_description_en String? @db.Text
+  product_type ProductType  @default(simple)
+  status      ProductStatus @default(draft)
+  is_featured Boolean       @default(false)
+  is_approved Boolean       @default(false)
+  approved_by Int?
+  approved_at DateTime?
+  published_at DateTime?
+  deleted_at   DateTime?
+  rejection_reason String?
+  meta_title String?
+  meta_description String?
+  meta_keywords String?
+  canonical_url String?
+  search_keywords String?   @db.Text
+  barcode   String?
+  warranty_months Int?
+  estimated_delivery_days Int?
+  tax_class String?
+  requires_shipping Boolean @default(true)
+  weight      Decimal?      @db.Decimal(8,2)
+  dimensions  Json?
+  tags        String?
+  view_count  Int           @default(0)
+  sales_count Int           @default(0)
+  rating      Decimal       @db.Decimal(3,2) @default(0)
+  rating_count Int          @default(0)
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
+  merchant    Merchant      @relation(fields: [merchant_id], references: [id], onDelete: Cascade)
+  category    Category?     @relation(fields: [category_id], references: [id], onDelete: SetNull)
+  brand       Brand?        @relation(fields: [brand_id], references: [id], onDelete: SetNull)
+  approver    User?         @relation("ProductApprover", fields: [approved_by], references: [id], onDelete: SetNull)
+  variants    ProductVariant[]
+  order_items OrderItem[]
+  relations_from ProductRelation[] @relation("ProductRelations")
+  relations_to   ProductRelation[] @relation("RelatedProducts")
+  product_attributes ProductAttribute[]
+  images      ProductImage[]
+  files       ProductFile[]
+  reviews     ProductReview[]
+  wishlist    Wishlist[]
+  recently_viewed RecentlyViewed[]
+  flash_sale_items FlashSaleItem[]
+  ad_campaign_items AdCampaignItem[]
+  special_offer_items SpecialOfferItem[]
+
+  @@index([merchant_id, status])
+  @@index([slug])
+  @@index([external_id])
+  @@index([created_at])
+  @@index([deleted_at])
+}
+
+model ProductVariant {
+  id             Int      @id @default(autoincrement())
+  product_id     Int
+  sku            String   @unique
+  price          Decimal  @db.Decimal(12, 2)
+  compare_at_price Decimal? @db.Decimal(12, 2)
+  cost_price     Decimal? @db.Decimal(12, 2)
+  stock_quantity Int      @default(0)
+  reserved_quantity Int   @default(0)
+  incoming_quantity Int   @default(0)
+  damaged_quantity Int    @default(0)
+  low_stock_threshold Int?
+  barcode        String?
+  weight         Decimal? @db.Decimal(8, 2)
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  deleted_at     DateTime?
+  product        Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  order_items    OrderItem[]
+  attribute_values VariantAttributeValue[]
+  images         VariantImage[]
+  inventory_logs InventoryLog[]
+  reservations   StockReservation[]
+  cart_items     CartItem[]
+  flash_sale_items FlashSaleItem[]
+  special_offer_items SpecialOfferItem[]
+  warehouse_stocks WarehouseStock[]
+
+  @@index([product_id])
+  @@index([stock_quantity])
+  @@index([created_at])
+  @@index([deleted_at])
+}
+
+model MerchantDocument {
+  id               Int       @id @default(autoincrement())
+  merchant_id      Int
+  doc_type         DocType
+  file_path        String
+  status           DocStatus @default(pending)
+  rejection_reason String?
+  reviewed_at      DateTime?
+  reviewed_by      Int?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  merchant         Merchant  @relation(fields: [merchant_id], references: [id], onDelete: Cascade)
+  reviewer         User?     @relation("DocumentReviewer", fields: [reviewed_by], references: [id], onDelete: SetNull)
+
+  @@index([merchant_id, status])
+}
+
+model MerchantSettings {
+  id                     Int      @id @default(autoincrement())
+  merchant_id            Int      @unique
+  return_policy          String?  @db.Text
+  shipping_policy        String?  @db.Text
+  privacy_policy         String?  @db.Text
+  terms_policy           String?  @db.Text
+  contact_phone          String?
+  contact_whatsapp       String?
+  contact_email          String?
+  contact_address        String?  @db.Text
+  social_links           Json?
+  min_order_amount       Decimal  @db.Decimal(12,2) @default(0)
+  auto_confirm_orders    Boolean  @default(false)
+  processing_time_days   Int      @default(1)
+  notification_new_order Boolean  @default(true)
+  notification_low_stock Boolean  @default(true)
+  low_stock_threshold    Int      @default(5)
+  store_open             Boolean  @default(true)
+  store_open_hours       Json?
+  created_at             DateTime @default(now())
+  updated_at             DateTime @updatedAt
+  merchant               Merchant @relation(fields: [merchant_id], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id               Int      @id @default(autoincrement())
+  parent_id        Int?
+  name_ar          String
+  name_en          String
+  slug             String   @unique
+  description_ar   String?  @db.Text
+  description_en   String?  @db.Text
+  image            String?
+  icon             String?
+  sort_order       Int      @default(0)
+  is_active        Boolean  @default(true)
+  meta_title       String?
+  meta_description String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  deleted_at       DateTime?
+  parent           Category?  @relation("CategoryTree", fields: [parent_id], references: [id], onDelete: SetNull)
+  children         Category[] @relation("CategoryTree")
+  products         Product[]
+
+  @@index([parent_id])
+  @@index([deleted_at])
+}
+
+model Brand {
+  id          Int      @id @default(autoincrement())
+  name        String
+  slug        String   @unique
+  logo        String?
+  description String?  @db.Text
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  deleted_at  DateTime?
+  products    Product[]
+
+  @@index([deleted_at])
+}
+
+model Attribute {
+  id         Int           @id @default(autoincrement())
+  name       String
+  type       AttributeType
+  is_global  Boolean       @default(true)
+  created_at DateTime      @default(now())
+  updated_at DateTime      @updatedAt
+  values                   AttributeValue[]
+  product_attributes       ProductAttribute[]
+  variant_attribute_values VariantAttributeValue[]
+}
+
+model AttributeValue {
+  id           Int      @id @default(autoincrement())
+  attribute_id Int
+  value        String
+  color_code   String?
+  sort_order   Int      @default(0)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  attribute    Attribute @relation(fields: [attribute_id], references: [id], onDelete: Cascade)
+  variant_values VariantAttributeValue[]
+
+  @@index([attribute_id])
+}
+model ProductRelation {
+  id                 Int          @id @default(autoincrement())
+  product_id         Int
+  related_product_id Int
+  relation_type      RelationType
+  sort_order         Int          @default(0)
+  created_at         DateTime     @default(now())
+  updated_at         DateTime     @updatedAt
+  product            Product      @relation("ProductRelations", fields: [product_id], references: [id], onDelete: Cascade)
+  related_product    Product      @relation("RelatedProducts", fields: [related_product_id], references: [id], onDelete: Cascade)
+
+  @@unique([product_id, related_product_id, relation_type])
+  @@index([product_id])
+}
+
+model ProductAttribute {
+  id           Int @id @default(autoincrement())
+  product_id   Int
+  attribute_id Int
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  product      Product   @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  attribute    Attribute @relation(fields: [attribute_id], references: [id], onDelete: Cascade)
+
+  @@unique([product_id, attribute_id])
+}
+
+model VariantAttributeValue {
+  id                 Int @id @default(autoincrement())
+  variant_id         Int
+  attribute_id       Int
+  attribute_value_id Int
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+  variant            ProductVariant  @relation(fields: [variant_id], references: [id], onDelete: Cascade)
+  attribute          Attribute       @relation(fields: [attribute_id], references: [id], onDelete: Cascade)
+  attribute_value    AttributeValue  @relation(fields: [attribute_value_id], references: [id], onDelete: Cascade)
+
+  @@unique([variant_id, attribute_id])
+  @@index([variant_id])
+}
+
+model ProductImage {
+  id         Int      @id @default(autoincrement())
+  product_id Int
+  image_url  String
+  alt_text   String?
+  is_primary Boolean  @default(false)
+  sort_order Int      @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  product    Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@index([product_id])
+}
+
+model VariantImage {
+  id         Int      @id @default(autoincrement())
+  variant_id Int
+  image_url  String
+  alt_text   String?
+  is_primary Boolean  @default(false)
+  sort_order Int      @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  variant    ProductVariant @relation(fields: [variant_id], references: [id], onDelete: Cascade)
+
+  @@index([variant_id])
+}
+
+model ProductFile {
+  id             Int      @id @default(autoincrement())
+  product_id     Int
+  file_name      String
+  file_url       String
+  file_size      BigInt
+  download_limit Int?
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  product        Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@index([product_id])
+}
+
+model InventoryLog {
+  id                 Int                 @id @default(autoincrement())
+  variant_id         Int
+  merchant_id        Int
+  warehouse_id       Int?
+  action             InventoryAction
+  actor_role         InventoryActorRole  @default(merchant_user)
+  quantity_change    Int
+  quantity_before    Int
+  quantity_after     Int
+  reference_type     String?
+  reference_id       String?
+  notes              String?
+  support_ticket_id  Int?
+  created_by         Int
+  created_at         DateTime            @default(now())
+  updated_at         DateTime            @updatedAt
+  variant            ProductVariant      @relation(fields: [variant_id], references: [id], onDelete: Cascade)
+  merchant           Merchant            @relation(fields: [merchant_id], references: [id], onDelete: Cascade)
+  warehouse          Warehouse?          @relation(fields: [warehouse_id], references: [id], onDelete: SetNull)
+  creator            User                @relation("InventoryLogCreator", fields: [created_by], references: [id], onDelete: Restrict)
+  support_ticket     SupportTicket?      @relation(fields: [support_ticket_id], references: [id], onDelete: SetNull)
+
+  @@index([variant_id, created_at])
+  @@index([merchant_id])
+  @@index([warehouse_id])
+  @@index([support_ticket_id])
+  @@index([actor_role, created_at])
+}
+
+model StockReservation {
+  id         Int      @id @default(autoincrement())
+  variant_id Int
+  cart_id    String
+  quantity   Int
+  expires_at DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  variant    ProductVariant @relation(fields: [variant_id], references: [id], onDelete: Cascade)
+  cart       Cart           @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+
+  @@index([variant_id])
+  @@index([expires_at])
+}
+
+model FlashSale {
+  id         Int      @id @default(autoincrement())
+  name       String
+  starts_at  DateTime
+  ends_at    DateTime
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  items      FlashSaleItem[]
+}
+
+model FlashSaleItem {
+  id             Int          @id @default(autoincrement())
+  flash_sale_id  Int
+  product_id     Int
+  variant_id     Int?
+  discount_type  DiscountType
+  discount_value Decimal      @db.Decimal(12,2)
+  max_qty        Int?
+  sold_qty       Int          @default(0)
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+  flash_sale     FlashSale    @relation(fields: [flash_sale_id], references: [id], onDelete: Cascade)
+  product        Product      @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  variant        ProductVariant? @relation(fields: [variant_id], references: [id], onDelete: SetNull)
+
+  @@index([flash_sale_id])
+  @@index([product_id])
+}
+model LoyaltyPoint {
+  id             Int           @id @default(autoincrement())
+  customer_id    Int
+  action         LoyaltyAction
+  points         Int
+  reference_type String?
+  reference_id   String?
+  expires_at     DateTime?
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+  customer       User          @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+
+  @@index([customer_id])
+  @@index([action])
+}
+
+model LoyaltyTier {
+  id               Int      @id @default(autoincrement())
+  name             TierName @unique
+  min_points       Int
+  discount_percent Decimal  @db.Decimal(5,2) @default(0)
+  benefits         Json?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+}
+
+model AdCampaign {
+  id              Int         @id @default(autoincrement())
+  merchant_id     Int
+  type            AdType
+  status          AdStatus    @default(draft)
+  bidding_type    BiddingType
+  budget          Decimal     @db.Decimal(12,2)
+  spent           Decimal     @db.Decimal(12,2) @default(0)
+  bid_amount      Decimal?    @db.Decimal(12,2)
+  starts_at       DateTime
+  ends_at         DateTime
+  targeting       Json?
+  rejection_reason String?
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+  merchant        Merchant    @relation(fields: [merchant_id], references: [id], onDelete: Cascade)
+  items           AdCampaignItem[]
+  analytics       AdAnalytic[]
+  payments        AdPayment[]
+
+  @@index([merchant_id])
+  @@index([status])
+}
+
+model AdCampaignItem {
+  id              Int            @id @default(autoincrement())
+  campaign_id     Int
+  item_type       AdItemType
+  product_id      Int?
+  store_id        Int?
+  banner_position BannerPosition?
+  banner_image    String?
+  banner_link     String?
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+  campaign        AdCampaign     @relation(fields: [campaign_id], references: [id], onDelete: Cascade)
+  product         Product?       @relation(fields: [product_id], references: [id], onDelete: SetNull)
+  store           Merchant?      @relation(fields: [store_id], references: [id], onDelete: SetNull)
+  analytics       AdAnalytic[]
+
+  @@index([campaign_id])
+}
+
+model AdAnalytic {
+  id               Int      @id @default(autoincrement())
+  campaign_id      Int
+  campaign_item_id Int?
+  date             DateTime @db.Date
+  impressions      Int      @default(0)
+  clicks           Int      @default(0)
+  spend            Decimal  @db.Decimal(12,2) @default(0)
+  conversions      Int      @default(0)
+  revenue          Decimal  @db.Decimal(12,2) @default(0)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  campaign         AdCampaign     @relation(fields: [campaign_id], references: [id], onDelete: Cascade)
+  campaign_item    AdCampaignItem? @relation(fields: [campaign_item_id], references: [id], onDelete: SetNull)
+
+  @@unique([campaign_id, date, campaign_item_id])
+  @@index([campaign_id, date])
+}
+
+model AdPayment {
+  id          Int      @id @default(autoincrement())
+  campaign_id Int
+  amount      Decimal  @db.Decimal(12,2)
+  method      PaymentMethod
+  status      TxStatus @default(pending)
+  reference   String?
+  paid_at     DateTime?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  campaign    AdCampaign @relation(fields: [campaign_id], references: [id], onDelete: Cascade)
+
+  @@index([campaign_id])
+  @@index([status])
+}
+
+model ShippingZone {
+  id         Int      @id @default(autoincrement())
+  name       String
+  cities     Json
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  rates      ShippingRate[]
+}
+
+model ShippingRate {
+  id               Int      @id @default(autoincrement())
+  zone_id          Int
+  carrier          Carrier
+  rate_type        RateType
+  min_weight       Decimal? @db.Decimal(8,2)
+  max_weight       Decimal? @db.Decimal(8,2)
+  min_order_amount Decimal? @db.Decimal(12,2)
+  max_order_amount Decimal? @db.Decimal(12,2)
+  rate             Decimal  @db.Decimal(12,2)
+  estimated_days   Int?
+  is_active        Boolean  @default(true)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  zone             ShippingZone @relation(fields: [zone_id], references: [id], onDelete: Cascade)
+
+  @@index([zone_id])
+}
+
+model ProductReview {
+  id            Int          @id @default(autoincrement())
+  product_id    Int
+  customer_id   Int
+  order_item_id Int?
+  rating        Int
+  title         String?
+  comment       String?      @db.Text
+  status        ReviewStatus @default(pending)
+  created_at    DateTime     @default(now())
+  updated_at    DateTime     @updatedAt
+  product       Product      @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  customer      User         @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  order_item    OrderItem?   @relation(fields: [order_item_id], references: [id], onDelete: SetNull)
+  helpful_votes ReviewHelpful[]
+
+  @@index([product_id])
+  @@index([customer_id])
+  @@index([status])
+}
+
+model ReviewHelpful {
+  id         Int      @id @default(autoincrement())
+  review_id  Int
+  user_id    Int
+  is_helpful Boolean
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  review     ProductReview @relation(fields: [review_id], references: [id], onDelete: Cascade)
+  user       User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([review_id, user_id])
+}
+
+model StoreReview {
+  id          Int          @id @default(autoincrement())
+  merchant_id Int
+  customer_id Int
+  rating      Int
+  comment     String?      @db.Text
+  status      ReviewStatus @default(pending)
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  merchant    Merchant     @relation(fields: [merchant_id], references: [id], onDelete: Cascade)
+  customer    User         @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+
+  @@index([merchant_id])
+  @@index([customer_id])
+}
+
+model Market {
+  id         Int      @id @default(autoincrement())
+  name       String
+  slug       String   @unique
+  country    String
+  currency   String   @db.VarChar(3)
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  merchants  MarketMerchant[]
+}
+
+model MarketMerchant {
+  id          Int      @id @default(autoincrement())
+  market_id   Int
+  merchant_id Int
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  market      Market   @relation(fields: [market_id], references: [id], onDelete: Cascade)
+  merchant    Merchant @relation(fields: [merchant_id], references: [id], onDelete: Cascade)
+
+  @@unique([market_id, merchant_id])
+}
+model Wishlist {
+  id          Int      @id @default(autoincrement())
+  customer_id Int
+  product_id  Int
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  customer    User     @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@unique([customer_id, product_id])
+}
+
+model RecentlyViewed {
+  id          Int      @id @default(autoincrement())
+  customer_id Int
+  product_id  Int
+  viewed_at   DateTime @default(now())
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  customer    User     @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@unique([customer_id, product_id])
+}

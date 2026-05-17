@@ -1,0 +1,44 @@
+model Warehouse {
+  id             Int                 @id @default(autoincrement())
+  owner_type     WarehouseOwnerType
+  merchant_id    Int?
+  name           String
+  code           String              @db.VarChar(64)
+  description    String?             @db.Text
+  country        String?             @db.VarChar(64)
+  city           String?             @db.VarChar(128)
+  address_line   String?             @db.Text
+  latitude       Decimal?            @db.Decimal(10, 7)
+  longitude      Decimal?            @db.Decimal(10, 7)
+  is_default     Boolean             @default(false)
+  is_active      Boolean             @default(true)
+  deleted_at     DateTime?
+  created_at     DateTime            @default(now())
+  updated_at     DateTime            @updatedAt
+  merchant       Merchant?           @relation(fields: [merchant_id], references: [id], onDelete: Cascade)
+  stocks         WarehouseStock[]
+  inventory_logs InventoryLog[]
+
+  @@index([owner_type, merchant_id, code])
+  @@index([merchant_id, is_active])
+  @@index([deleted_at])
+}
+
+model WarehouseStock {
+  id                 Int            @id @default(autoincrement())
+  warehouse_id     Int
+  variant_id        Int
+  quantity_on_hand  Int            @default(0)
+  quantity_reserved Int            @default(0)
+  quantity_damaged  Int            @default(0)
+  reorder_point      Int?
+  last_counted_at    DateTime?
+  created_at         DateTime       @default(now())
+  updated_at         DateTime       @updatedAt
+  warehouse          Warehouse      @relation(fields: [warehouse_id], references: [id], onDelete: Cascade)
+  variant            ProductVariant @relation(fields: [variant_id], references: [id], onDelete: Cascade)
+
+  @@unique([warehouse_id, variant_id])
+  @@index([variant_id])
+  @@index([warehouse_id])
+}

@@ -1,0 +1,78 @@
+model ReportDefinition {
+  id              Int                 @id @default(autoincrement())
+  merchant_id     Int?
+  owner_user_id   Int?
+  name            String
+  slug            String              @db.VarChar(191)
+  description     String?             @db.Text
+  category        ReportCategory      @default(custom)
+  resource_type   String              @db.VarChar(128)
+  resource_id     String?             @db.VarChar(64)
+  spec            Json
+  default_format  ReportExportFormat  @default(json)
+  is_shared       Boolean             @default(false)
+  is_active       Boolean             @default(true)
+  is_system       Boolean             @default(false)
+  created_at      DateTime            @default(now())
+  updated_at      DateTime            @updatedAt
+  merchant        Merchant?           @relation(fields: [merchant_id], references: [id], onDelete: Cascade)
+  owner           User?               @relation("ReportDefinitionOwner", fields: [owner_user_id], references: [id], onDelete: SetNull)
+  runs            ReportRun[]
+  schedules       ReportSchedule[]
+
+  @@index([merchant_id, category])
+  @@index([merchant_id, is_active])
+  @@index([merchant_id, slug])
+  @@index([resource_type, resource_id])
+  @@index([owner_user_id])
+}
+
+model ReportRun {
+  id                    Int                 @id @default(autoincrement())
+  report_definition_id  Int?
+  merchant_id           Int?
+  requested_by_user_id  Int
+  status                ReportRunStatus     @default(pending)
+  parameters            Json?
+  format                ReportExportFormat  @default(json)
+  output_url            String?             @db.Text
+  output_key            String?             @db.VarChar(512)
+  output_mime           String?             @db.VarChar(128)
+  row_count             Int?
+  error_message         String?             @db.Text
+  idempotency_key       String?             @unique @db.VarChar(191)
+  started_at            DateTime?
+  completed_at          DateTime?
+  expires_at            DateTime?
+  created_at            DateTime            @default(now())
+  updated_at            DateTime            @updatedAt
+  definition            ReportDefinition?   @relation(fields: [report_definition_id], references: [id], onDelete: SetNull)
+  merchant              Merchant?           @relation(fields: [merchant_id], references: [id], onDelete: Cascade)
+  requester             User                @relation("ReportRunRequester", fields: [requested_by_user_id], references: [id], onDelete: Cascade)
+
+  @@index([merchant_id, status, created_at])
+  @@index([requested_by_user_id, created_at])
+  @@index([report_definition_id])
+}
+
+model ReportSchedule {
+  id                   Int                      @id @default(autoincrement())
+  report_definition_id Int
+  merchant_id          Int?
+  frequency            ReportScheduleFrequency  @default(daily)
+  cron_expression      String?                  @db.VarChar(128)
+  timezone             String                   @default("Africa/Cairo") @db.VarChar(64)
+  is_active            Boolean                  @default(true)
+  next_run_at          DateTime?
+  last_run_at          DateTime?
+  created_by_user_id   Int
+  created_at           DateTime                 @default(now())
+  updated_at           DateTime                 @updatedAt
+  definition           ReportDefinition         @relation(fields: [report_definition_id], references: [id], onDelete: Cascade)
+  merchant             Merchant?                @relation(fields: [merchant_id], references: [id], onDelete: Cascade)
+  creator              User                     @relation("ReportScheduleCreator", fields: [created_by_user_id], references: [id], onDelete: Cascade)
+
+  @@index([merchant_id, is_active])
+  @@index([next_run_at])
+  @@index([report_definition_id])
+}

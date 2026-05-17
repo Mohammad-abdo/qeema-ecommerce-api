@@ -1,0 +1,57 @@
+import type { FastifyInstance } from 'fastify';
+
+import { addressesRoutes } from './addresses/addresses.routes.js';
+import { authRoutes } from './auth/auth.routes.js';
+import { cartRoutes } from './cart/cart.routes.js';
+import { catalogRoutes } from './catalog/catalog.routes.js';
+import { healthRoutes } from './health/health.routes.js';
+import { integrationsRoutes } from './integrations/integrations.routes.js';
+import { i18nRoutes } from './i18n/i18n.routes.js';
+import { invoicesRoutes } from './invoices/invoices.routes.js';
+import { merchantsRoutes } from './merchants/merchants.routes.js';
+import { notificationsRoutes } from './notifications/notifications.routes.js';
+import { adminOrdersRoutes } from './orders/admin-orders.routes.js';
+import { merchantOrdersRoutes } from './orders/merchant-orders.routes.js';
+import { ordersRoutes } from './orders/orders.routes.js';
+import { paymentsRoutes } from './payments/payments.routes.js';
+import { reportsRoutes } from './reports/reports.routes.js';
+import { adminSearchRoutes } from './admin-search/admin-search.routes.js';
+import { searchRoutes } from './search/search.routes.js';
+import { settingsRoutes } from './settings/settings.routes.js';
+import { siteListingsRoutes } from './site_listings/site_listings.routes.js';
+import { supportRoutes } from './support/support.routes.js';
+import { usersRoutes } from './users/users.routes.js';
+import { wishlistRoutes } from './wishlist/wishlist.routes.js';
+import { warehouseRoutes } from './warehouse/warehouse.routes.js';
+import { storefrontRoutes } from './storefront/storefront.routes.js';
+import { specialOffersRoutes } from './special-offers/special-offers.routes.js';
+import { uploadsRoutes } from './uploads/uploads.routes.js';
+
+export async function registerModules(app: FastifyInstance) {
+  await app.register(healthRoutes);
+  await app.register(authRoutes);
+  await app.register(cartRoutes);
+  await app.register(addressesRoutes);
+  await app.register(usersRoutes);
+  await app.register(merchantsRoutes);
+  await app.register(catalogRoutes);
+  await app.register(integrationsRoutes);
+  await app.register(ordersRoutes);
+  await app.register(adminOrdersRoutes);
+  await app.register(merchantOrdersRoutes);
+  await app.register(warehouseRoutes);
+  await app.register(paymentsRoutes);
+  await app.register(notificationsRoutes);
+  await app.register(supportRoutes);
+  await app.register(siteListingsRoutes);
+  await app.register(invoicesRoutes);
+  await app.register(reportsRoutes);
+  await app.register(searchRoutes);
+  await app.register(settingsRoutes);
+  await app.register(adminSearchRoutes);
+  await app.register(i18nRoutes);
+  await app.register(storefrontRoutes);
+  await app.register(specialOffersRoutes);
+  await app.register(uploadsRoutes);
+  await app.register(wishlistRoutes);
+}

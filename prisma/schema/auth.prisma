@@ -1,0 +1,57 @@
+model Session {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  token       String   @unique
+  device_info String?
+  ip_address  String?
+  expires_at  DateTime
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([expires_at])
+  @@index([created_at])
+}
+
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  action      String
+  module      String
+  entity_type String?
+  entity_id   String?
+  old_values  Json?
+  new_values  Json?
+  ip_address  String?
+  user_agent  String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, created_at])
+  @@index([module, action])
+  @@index([created_at])
+}
+
+model Permission {
+  id         Int      @id @default(autoincrement())
+  module     String
+  action     String
+  key        String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  employee_permissions EmployeePermission[]
+}
+
+model EmployeePermission {
+  id            Int      @id @default(autoincrement())
+  employee_id   Int
+  permission_id Int
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  employee      Employee   @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  permission    Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+  @@unique([employee_id, permission_id])
+}

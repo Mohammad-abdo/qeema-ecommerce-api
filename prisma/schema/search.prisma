@@ -1,0 +1,30 @@
+model SearchIndex {
+  id                 Int       @id @default(autoincrement())
+  entity_type        String    @db.VarChar(64)
+  entity_int_id      Int
+  merchant_id        Int?
+  title_ar           String    @db.VarChar(512)
+  title_en           String    @db.VarChar(512)
+  sku                String?   @db.VarChar(128)
+  barcode            String?   @db.VarChar(128)
+  product_slug       String?   @db.VarChar(512)
+  merchant_slug      String?   @db.VarChar(512)
+  merchant_store_name String? @db.VarChar(255)
+  primary_image_url  String?   @db.VarChar(1024)
+  search_blob        String    @db.Text
+  facets             Json?
+  popularity_score   Int       @default(0)
+  deleted_at         DateTime?
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+  merchant           Merchant? @relation(fields: [merchant_id], references: [id], onDelete: Cascade)
+
+  @@unique([entity_type, entity_int_id])
+  @@index([merchant_id, entity_type])
+  @@index([sku])
+  @@index([barcode])
+  @@index([product_slug])
+  @@index([merchant_slug])
+  @@index([deleted_at])
+  @@index([popularity_score])
+}

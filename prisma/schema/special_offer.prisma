@@ -1,0 +1,45 @@
+model SpecialOffer {
+  id              Int                @id @default(autoincrement())
+  merchant_id     Int?
+  created_by      Int
+  title_en        String
+  title_ar        String
+  slug            String             @unique
+  description_en  String?            @db.Text
+  description_ar  String?            @db.Text
+  image_url       String?
+  bundle_price    Decimal            @db.Decimal(12, 2)
+  status          SpecialOfferStatus @default(draft)
+  is_featured     Boolean            @default(false)
+  sort_order      Int                @default(0)
+  starts_at       DateTime?
+  ends_at         DateTime?
+  deleted_at      DateTime?
+  created_at      DateTime           @default(now())
+  updated_at      DateTime           @updatedAt
+  merchant        Merchant?          @relation(fields: [merchant_id], references: [id], onDelete: Cascade)
+  creator         User               @relation("SpecialOfferCreator", fields: [created_by], references: [id], onDelete: Cascade)
+  items           SpecialOfferItem[]
+
+  @@index([merchant_id, status])
+  @@index([status, starts_at, ends_at])
+  @@index([slug])
+  @@index([deleted_at])
+}
+
+model SpecialOfferItem {
+  id               Int            @id @default(autoincrement())
+  special_offer_id Int
+  product_id       Int
+  variant_id       Int?
+  quantity         Int            @default(1)
+  sort_order       Int            @default(0)
+  created_at       DateTime       @default(now())
+  updated_at       DateTime       @updatedAt
+  special_offer    SpecialOffer   @relation(fields: [special_offer_id], references: [id], onDelete: Cascade)
+  product          Product        @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  variant          ProductVariant? @relation(fields: [variant_id], references: [id], onDelete: SetNull)
+
+  @@index([special_offer_id])
+  @@index([product_id])
+}

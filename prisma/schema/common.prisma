@@ -1,0 +1,827 @@
+enum UserRole {
+  super_admin
+  admin
+  employee
+  merchant
+  customer
+}
+
+enum MerchantStatus {
+  pending
+  approved
+  suspended
+  rejected
+}
+
+enum ProductStatus {
+  draft
+  pending_review
+  published
+  rejected
+  archived
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  processing
+  shipped
+  delivered
+  completed
+  cancelled
+  refunded
+}
+
+enum PaymentStatus {
+  unpaid
+  paid
+  partial
+  refunded
+}
+
+enum PaymentMethod {
+  card
+  paymob
+  fawry
+  kashier
+  stripe
+  cod
+  wallet
+  installment
+  bank_transfer
+}
+
+enum ContractType {
+  full_time
+  part_time
+  contract
+}
+enum EmployeeStatus {
+  active
+  inactive
+  terminated
+}
+enum AttendanceStatus {
+  present
+  absent
+  late
+  half_day
+  on_leave
+}
+enum LeaveType {
+  annual
+  sick
+  emergency
+  unpaid
+}
+enum LeaveStatus {
+  pending
+  approved
+  rejected
+}
+enum PayrollStatus {
+  draft
+  approved
+  paid
+}
+enum BusinessType {
+  individual
+  company
+}
+enum DocType {
+  national_id
+  commercial_register
+  tax_card
+  bank_statement
+  other
+}
+enum DocStatus {
+  pending
+  verified
+  rejected
+}
+enum AttributeType {
+  select
+  color
+  text
+  number
+}
+enum ProductType {
+  simple
+  variable
+  digital
+  bundle
+}
+enum RelationType {
+  related
+  upsell
+  cross_sell
+  bundle
+}
+enum InventoryAction {
+  purchase
+  sale
+  return
+  adjustment
+  transfer
+  reserved
+  released
+}
+enum SubOrderStatus {
+  pending
+  confirmed
+  processing
+  shipped
+  delivered
+  cancelled
+  refunded
+  completed
+}
+enum ReturnReason {
+  wrong_item
+  defective
+  not_as_described
+  changed_mind
+  other
+}
+enum ReturnStatus {
+  pending
+  approved
+  rejected
+  received
+  refunded
+}
+enum RefundMethod {
+  original_payment
+  wallet
+}
+enum TxStatus {
+  pending
+  success
+  failed
+  refunded
+}
+enum WalletOwner {
+  merchant
+  customer
+  admin
+}
+enum TxType {
+  credit
+  debit
+}
+enum TxCategory {
+  order_payment
+  commission
+  payout
+  refund
+  topup
+  bonus
+  adjustment
+}
+enum CommissionStatus {
+  pending
+  clearing
+  cleared
+  paid
+}
+enum PayoutMethod {
+  bank_transfer
+  wallet
+  instapay
+  check
+}
+enum PayoutStatus {
+  pending
+  processing
+  completed
+  failed
+}
+enum InstallmentProvider {
+  sympl
+  valu
+  contact
+  shahry
+}
+enum InstallmentStatus {
+  pending
+  approved
+  rejected
+  active
+  completed
+}
+enum CouponType {
+  percentage
+  fixed
+  free_shipping
+  buy_x_get_y
+}
+enum ApplicableTo {
+  all
+  specific_categories
+  specific_products
+}
+enum DiscountType {
+  percentage
+  fixed
+}
+
+enum SpecialOfferStatus {
+  draft
+  active
+  paused
+  expired
+}
+enum LoyaltyAction {
+  earned
+  redeemed
+  expired
+}
+enum TierName {
+  bronze
+  silver
+  gold
+  platinum
+}
+enum AdType {
+  sponsored_product
+  featured_store
+  homepage_banner
+  search_boost
+  category_top
+}
+enum AdStatus {
+  draft
+  pending_payment
+  active
+  paused
+  completed
+  rejected
+}
+enum BiddingType {
+  cpc
+  cpm
+  fixed
+}
+enum AdItemType {
+  product
+  store
+  banner
+}
+enum BannerPosition {
+  hero
+  sidebar
+  inline
+  footer
+}
+enum Carrier {
+  bosta
+  mylerz
+  aramex
+  dhl
+  fedex
+  custom
+  platform
+}
+enum RateType {
+  flat
+  weight_based
+  price_based
+  free
+}
+enum ReviewStatus {
+  pending
+  approved
+  rejected
+}
+enum NotifChannel {
+  in_app
+  email
+  sms
+  push
+}
+enum TicketCategory {
+  order
+  payment
+  product
+  shipping
+  account
+  other
+}
+enum TicketStatus {
+  open
+  in_progress
+  waiting_customer
+  resolved
+  closed
+}
+enum TicketPriority {
+  low
+  medium
+  high
+  urgent
+}
+enum SenderType {
+  customer
+  merchant
+  employee
+  admin
+}
+enum InvoiceStatus {
+  pending
+  issued
+  cancelled
+}
+
+enum ReportCategory {
+  sales
+  orders
+  products
+  inventory
+  payments
+  commissions
+  customers
+  marketing
+  hr
+  platform
+  custom
+}
+
+enum ReportExportFormat {
+  json
+  csv
+  xlsx
+  pdf
+}
+
+enum ReportRunStatus {
+  pending
+  queued
+  processing
+  completed
+  failed
+  cancelled
+  expired
+}
+
+enum ReportScheduleFrequency {
+  once
+  hourly
+  daily
+  weekly
+  monthly
+  cron
+}
+
+enum WarehouseOwnerType {
+  platform
+  merchant
+}
+
+enum OrderTrackingActorType {
+  system
+  merchant
+  admin
+  support
+  carrier
+  customer
+}
+
+enum InventoryActorRole {
+  merchant_user
+  admin_user
+  support_user
+  system
+  automation
+}
+
+enum InvoiceArchiveTier {
+  hot
+  warm
+  cold
+}
+
+enum SiteListingStatus {
+  draft
+  pending_review
+  rejected
+  published
+  expired
+  archived
+}
+
+enum SiteListingPublisherType {
+  admin
+  merchant
+}
+
+model SystemSetting {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique
+  value       Json
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model FeatureFlag {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique
+  name        String
+  description String?
+  enabled     Boolean  @default(false)
+  conditions  Json?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Enterprise i18n / localization (keys + namespaces + versions + jobs)
+// Replaces long-term reliance on name_ar/name_en columns via EntityTranslation + keys.
+// ---------------------------------------------------------------------------
+
+enum LocaleDirection {
+  ltr
+  rtl
+}
+
+enum TranslationEntryStatus {
+  draft
+  in_review
+  published
+  archived
+}
+
+enum TranslationJobType {
+  extract
+  sync
+  ai_translate
+  import_bundle
+  export_bundle
+  missing_scan
+  validate
+  review_pass
+  publish
+  rollback
+}
+
+enum TranslationJobStatus {
+  pending
+  queued
+  processing
+  completed
+  failed
+  cancelled
+}
+
+enum TranslationAuditAction {
+  key_create
+  key_update
+  key_delete
+  draft_save
+  submit_review
+  publish
+  rollback
+  import
+  export
+  cache_invalidate
+}
+
+enum TranslationSourceKind {
+  human
+  ai
+  file_import
+  api
+  migration
+}
+
+enum TranslationReviewStatus {
+  pending
+  approved
+  rejected
+  changes_requested
+}
+
+enum TranslationPermissionKind {
+  namespace_read
+  namespace_write
+  publish
+  review
+  export
+  manage_locales
+}
+
+model Locale {
+  id                 Int              @id @default(autoincrement())
+  code               String           @unique @db.VarChar(32)
+  name               String
+  native_name        String
+  direction          LocaleDirection  @default(ltr)
+  is_active          Boolean          @default(true)
+  is_default         Boolean          @default(false)
+  inherit_from_id    Int?
+  number_system      String?          @db.VarChar(16)
+  calendar           String?          @db.VarChar(32)
+  collator_strength  Int?
+  plural_rules       Json?
+  metadata           Json?
+  created_at         DateTime         @default(now())
+  updated_at         DateTime         @updatedAt
+  inherit_from       Locale?          @relation("LocaleInheritance", fields: [inherit_from_id], references: [id], onDelete: SetNull)
+  derived_locales    Locale[]         @relation("LocaleInheritance")
+  fallbacks_as_base  LocaleFallback[] @relation("LocaleFallbackBase")
+  fallbacks_as_target LocaleFallback[] @relation("LocaleFallbackTarget")
+  translations       Translation[]
+  translation_drafts TranslationDraft[]
+  entity_translations EntityTranslation[]
+  locale_slugs       LocaleSlug[]
+  translation_metrics TranslationMetric[]
+  translation_jobs   TranslationJob[]
+  translation_caches TranslationCache[]
+  translation_permissions TranslationPermission[]
+  translation_audits TranslationAudit[]
+
+  @@index([is_active])
+  @@index([is_default])
+}
+
+model LocaleFallback {
+  id                   Int      @id @default(autoincrement())
+  locale_id            Int
+  fallback_locale_id   Int
+  priority             Int      @default(0)
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+  locale               Locale   @relation("LocaleFallbackBase", fields: [locale_id], references: [id], onDelete: Cascade)
+  fallback_locale      Locale   @relation("LocaleFallbackTarget", fields: [fallback_locale_id], references: [id], onDelete: Cascade)
+
+  @@unique([locale_id, fallback_locale_id])
+  @@index([locale_id, priority])
+}
+
+model TranslationNamespace {
+  id           Int       @id @default(autoincrement())
+  merchant_id  Int?
+  slug         String    @db.VarChar(128)
+  name         String
+  description  String?   @db.Text
+  is_system    Boolean   @default(false)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  merchant     Merchant? @relation(fields: [merchant_id], references: [id], onDelete: Cascade)
+  keys         TranslationKey[]
+  jobs         TranslationJob[]
+  caches       TranslationCache[]
+  metrics      TranslationMetric[]
+  permissions  TranslationPermission[]
+
+  @@unique([merchant_id, slug])
+  @@index([merchant_id])
+}
+
+model TranslationKey {
+  id             Int       @id @default(autoincrement())
+  namespace_id   Int
+  key            String    @db.VarChar(512)
+  description    String?   @db.Text
+  context        String?   @db.VarChar(255)
+  entity_type    String?   @db.VarChar(128)
+  entity_id      String?   @db.VarChar(64)
+  field_path     String?   @db.VarChar(255)
+  default_value  String?   @db.Text
+  is_plural      Boolean   @default(false)
+  icu_message     Boolean   @default(false)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+  namespace      TranslationNamespace @relation(fields: [namespace_id], references: [id], onDelete: Cascade)
+  translations   Translation[]
+  drafts         TranslationDraft[]
+  audits         TranslationAudit[]
+  reviews        TranslationReview[]
+
+  @@unique([namespace_id, key])
+  @@index([namespace_id, entity_type, entity_id])
+  @@index([entity_type, entity_id, field_path])
+}
+
+model Translation {
+  id                 Int       @id @default(autoincrement())
+  translation_key_id Int
+  locale_id          Int
+  value               String    @db.LongText
+  status              TranslationEntryStatus @default(published)
+  version             Int       @default(1)
+  published_at        DateTime  @default(now())
+  published_by        Int?
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+  translation_key     TranslationKey @relation(fields: [translation_key_id], references: [id], onDelete: Cascade)
+  locale              Locale         @relation(fields: [locale_id], references: [id], onDelete: Cascade)
+  publisher           User?          @relation("TranslationPublisher", fields: [published_by], references: [id], onDelete: SetNull)
+  version_rows        TranslationVersion[]
+  sources             TranslationSource[]
+
+  @@unique([translation_key_id, locale_id])
+  @@index([locale_id, status])
+  @@index([translation_key_id])
+  @@index([updated_at])
+}
+
+model TranslationDraft {
+  id                 Int       @id @default(autoincrement())
+  translation_key_id Int
+  locale_id          Int
+  value               String    @db.LongText
+  updated_at          DateTime  @updatedAt
+  updated_by          Int?
+  translation_key     TranslationKey @relation(fields: [translation_key_id], references: [id], onDelete: Cascade)
+  locale              Locale         @relation(fields: [locale_id], references: [id], onDelete: Cascade)
+  editor              User?          @relation("TranslationDraftEditor", fields: [updated_by], references: [id], onDelete: SetNull)
+  reviews             TranslationReview[]
+
+  @@unique([translation_key_id, locale_id])
+  @@index([locale_id])
+}
+
+model TranslationVersion {
+  id             Int       @id @default(autoincrement())
+  translation_id Int
+  version         Int
+  value           String    @db.LongText
+  created_at      DateTime  @default(now())
+  created_by      Int?
+  translation     Translation @relation(fields: [translation_id], references: [id], onDelete: Cascade)
+  author            User?         @relation("TranslationVersionAuthor", fields: [created_by], references: [id], onDelete: SetNull)
+
+  @@unique([translation_id, version])
+  @@index([created_at])
+}
+
+model TranslationAudit {
+  id                 Int                   @id @default(autoincrement())
+  translation_key_id Int?
+  locale_id          Int?
+  translation_id     Int?
+  action              TranslationAuditAction
+  actor_id            Int?
+  ip_address          String?               @db.VarChar(45)
+  user_agent          String?               @db.VarChar(512)
+  payload             Json?
+  created_at          DateTime              @default(now())
+  translation_key     TranslationKey?       @relation(fields: [translation_key_id], references: [id], onDelete: SetNull)
+  locale              Locale?               @relation(fields: [locale_id], references: [id], onDelete: SetNull)
+  actor               User?                 @relation("TranslationAuditActor", fields: [actor_id], references: [id], onDelete: SetNull)
+
+  @@index([translation_key_id, created_at])
+  @@index([actor_id, created_at])
+  @@index([action, created_at])
+}
+
+model TranslationJob {
+  id            Int                   @id @default(autoincrement())
+  type          TranslationJobType
+  status        TranslationJobStatus  @default(pending)
+  priority      Int                   @default(0)
+  merchant_id   Int?
+  namespace_id  Int?
+  locale_id     Int?
+  payload       Json?
+  result        Json?
+  error_message String?               @db.Text
+  attempts      Int                   @default(0)
+  scheduled_at  DateTime?
+  started_at    DateTime?
+  completed_at  DateTime?
+  created_by    Int?
+  created_at    DateTime              @default(now())
+  updated_at    DateTime              @updatedAt
+  namespace     TranslationNamespace? @relation(fields: [namespace_id], references: [id], onDelete: SetNull)
+  locale        Locale?               @relation(fields: [locale_id], references: [id], onDelete: SetNull)
+  creator       User?                 @relation("TranslationJobCreator", fields: [created_by], references: [id], onDelete: SetNull)
+
+  @@index([status, priority, scheduled_at])
+  @@index([type, created_at])
+  @@index([namespace_id])
+  @@index([merchant_id])
+}
+
+model TranslationSource {
+  id                 Int                   @id @default(autoincrement())
+  translation_id     Int
+  kind               TranslationSourceKind
+  provider           String?               @db.VarChar(64)
+  external_ref       String?               @db.VarChar(255)
+  model              String?               @db.VarChar(128)
+  confidence         Decimal?              @db.Decimal(5, 4)
+  metadata           Json?
+  created_at         DateTime              @default(now())
+  translation        Translation           @relation(fields: [translation_id], references: [id], onDelete: Cascade)
+
+  @@index([translation_id])
+  @@index([kind, created_at])
+}
+
+model TranslationReview {
+  id                 Int                    @id @default(autoincrement())
+  translation_key_id Int
+  translation_draft_id Int
+  reviewer_id        Int?
+  status             TranslationReviewStatus @default(pending)
+  comment            String?                @db.Text
+  created_at         DateTime               @default(now())
+  updated_at         DateTime               @updatedAt
+  translation_key    TranslationKey       @relation(fields: [translation_key_id], references: [id], onDelete: Cascade)
+  draft              TranslationDraft     @relation(fields: [translation_draft_id], references: [id], onDelete: Cascade)
+  reviewer           User?                @relation("TranslationReviewReviewer", fields: [reviewer_id], references: [id], onDelete: SetNull)
+
+  @@index([translation_key_id, status])
+  @@index([reviewer_id])
+}
+
+model TranslationCache {
+  id            Int       @id @default(autoincrement())
+  cache_key     String    @unique @db.VarChar(512)
+  namespace_id  Int?
+  locale_id     Int?
+  bundle_hash   String    @db.VarChar(64)
+  byte_size     Int?
+  expires_at    DateTime?
+  invalidated_at DateTime?
+  edge_region   String?   @db.VarChar(32)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  namespace     TranslationNamespace? @relation(fields: [namespace_id], references: [id], onDelete: SetNull)
+  locale        Locale?               @relation(fields: [locale_id], references: [id], onDelete: SetNull)
+
+  @@index([namespace_id, locale_id])
+  @@index([expires_at])
+}
+
+model TranslationMetric {
+  id              Int      @id @default(autoincrement())
+  day             DateTime @db.Date
+  locale_id       Int
+  namespace_id    Int?
+  keys_total      Int      @default(0)
+  keys_translated Int      @default(0)
+  keys_missing    Int      @default(0)
+  ai_tokens_used  Int?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  locale          Locale   @relation(fields: [locale_id], references: [id], onDelete: Cascade)
+  namespace       TranslationNamespace? @relation(fields: [namespace_id], references: [id], onDelete: SetNull)
+
+  @@index([day, locale_id])
+  @@index([locale_id, namespace_id])
+}
+
+model TranslationPermission {
+  id            Int                     @id @default(autoincrement())
+  user_id       Int
+  namespace_id  Int?
+  locale_id     Int?
+  permission    TranslationPermissionKind
+  created_at    DateTime                @default(now())
+  updated_at    DateTime                @updatedAt
+  user          User                    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  namespace     TranslationNamespace?   @relation(fields: [namespace_id], references: [id], onDelete: Cascade)
+  locale        Locale?                 @relation(fields: [locale_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, permission])
+  @@index([namespace_id])
+}
+
+model EntityTranslation {
+  id            Int                   @id @default(autoincrement())
+  merchant_id   Int                   @default(0)
+  entity_type   String                @db.VarChar(128)
+  entity_id     String                @db.VarChar(64)
+  field_path    String                @db.VarChar(255)
+  locale_id     Int
+  value         String                @db.LongText
+  status        TranslationEntryStatus @default(published)
+  author_id     Int?
+  created_at    DateTime              @default(now())
+  updated_at    DateTime              @updatedAt
+  locale        Locale                @relation(fields: [locale_id], references: [id], onDelete: Cascade)
+  author        User?                 @relation("EntityTranslationAuthor", fields: [author_id], references: [id], onDelete: SetNull)
+
+  @@unique([entity_type, entity_id, field_path, locale_id, merchant_id])
+  @@index([merchant_id, entity_type, entity_id])
+  @@index([locale_id, status])
+}
+
+model LocaleSlug {
+  id          Int      @id @default(autoincrement())
+  entity_type String   @db.VarChar(128)
+  entity_id   String   @db.VarChar(64)
+  locale_id   Int
+  slug        String   @db.VarChar(512)
+  is_canonical Boolean @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  locale      Locale   @relation(fields: [locale_id], references: [id], onDelete: Cascade)
+
+  @@unique([locale_id, slug])
+  @@index([entity_type, entity_id])
+}
