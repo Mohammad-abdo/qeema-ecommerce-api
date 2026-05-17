@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 
 import { prisma } from '../../lib/prisma.js';
-import { redis } from '../../lib/redis.js';
+import { redis, redisEnabled } from '../../lib/redis.js';
 
 const READY_DB_MS = 3_000;
 const READY_REDIS_MS = 2_000;
@@ -52,7 +52,7 @@ export async function healthRoutes(app: FastifyInstance) {
   app.get('/health/ready', {
     schema: {
       tags: ['Health'],
-      description: 'Readiness: verifies MySQL and Redis',
+      description: 'Readiness: verifies MySQL (and Redis when REDIS_ENABLED=true)',
     },
   }, async (_request, reply) => {
     const checks: { db: boolean; redis: boolean } = { db: false, redis: false };
@@ -62,13 +62,17 @@ export async function healthRoutes(app: FastifyInstance) {
     } catch {
       checks.db = false;
     }
-    try {
-      const pong = await withTimeout(redis.ping(), READY_REDIS_MS, 'redis');
-      checks.redis = pong === 'PONG';
-    } catch {
-      checks.redis = false;
+    if (!redisEnabled || !redis) {
+      checks.redis = true;
+    } else {
+      try {
+        const pong = await withTimeout(redis.ping(), READY_REDIS_MS, 'redis');
+        checks.redis = pong === 'PONG';
+      } catch {
+        checks.redis = false;
+      }
     }
-    const ok = checks.db && checks.redis;
+    const ok = checks.db && (redisEnabled ? checks.redis : true);
     const body = {
       status: ok ? 'ready' : 'not_ready',
       checks,

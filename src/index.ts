@@ -6,12 +6,7 @@ import { env } from './config/env.js';
 import { disconnectPrisma } from './lib/prisma.js';
 import { disconnectRedis, initRedis } from './lib/redis.js';
 
-const redisOk = await initRedis();
-if (!redisOk) {
-  console.warn(
-    '[api] Redis is offline. Cart and checkout will fail until Redis is running (see startup message above).',
-  );
-}
+await initRedis();
 
 const app = await buildApp();
 

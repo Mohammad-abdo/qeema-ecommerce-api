@@ -1,6 +1,6 @@
 import { Queue } from 'bullmq';
 
-import { redis, redisAvailable } from './redis.js';
+import { redis, redisAvailable, redisEnabled } from './redis.js';
 
 export type AppQueues = {
   notifications: Queue;
@@ -24,7 +24,7 @@ function queueConnectionOptions() {
 
 /** BullMQ queues — only created when Redis is available. */
 export function getQueues(): AppQueues | null {
-  if (!redisAvailable) return null;
+  if (!redisEnabled || !redisAvailable || !redis) return null;
   if (cache) return cache;
 
   const connection = redis.duplicate(queueConnectionOptions());

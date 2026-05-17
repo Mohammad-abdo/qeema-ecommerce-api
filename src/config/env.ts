@@ -7,7 +7,12 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3001),
   FRONTEND_URL: z.string().url(),
   DATABASE_URL: z.string().min(1),
-  REDIS_URL: z.string().min(1),
+  /** Set to false to skip Redis (cart uses in-memory storage; background workers need Redis). */
+  REDIS_ENABLED: z
+    .enum(['true', 'false', '1', '0'])
+    .default('true')
+    .transform((v) => v === 'true' || v === '1'),
+  REDIS_URL: z.string().default('redis://127.0.0.1:6379'),
   JWT_SECRET: z.string().min(32),
   /** Access token TTL (e.g. 15m, 24h, 7d). Shorter is safer for production. */
   JWT_EXPIRES_IN: z.string().min(2).default('24h'),

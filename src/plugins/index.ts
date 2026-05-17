@@ -7,7 +7,7 @@ import swaggerUi from '@fastify/swagger-ui';
 import jwt from '@fastify/jwt';
 
 import { env } from '../config/env.js';
-import { redis, redisAvailable } from '../lib/redis.js';
+import { redis, redisAvailable, redisEnabled } from '../lib/redis.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -22,7 +22,7 @@ export const registerPlugins = fp(async (app) => {
   await app.register(rateLimit, {
     max: 120,
     timeWindow: '1 minute',
-    ...(env.NODE_ENV === 'test' || !redisAvailable
+    ...(env.NODE_ENV === 'test' || !redisEnabled || !redisAvailable || !redis
       ? {}
       : {
           redis,

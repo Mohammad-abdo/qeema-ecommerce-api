@@ -8,10 +8,15 @@ import { Worker } from 'bullmq';
 
 import { sendEmail } from '../lib/email.js';
 import { processCommissionClear } from '../modules/orders/commission.service.js';
-import { disconnectRedis, initRedis, redis } from '../lib/redis.js';
+import { disconnectRedis, initRedis, redis, redisEnabled } from '../lib/redis.js';
+
+if (!redisEnabled) {
+  console.error('[worker] Redis is disabled (REDIS_ENABLED=false). Workers require Redis.');
+  process.exit(1);
+}
 
 const redisOk = await initRedis();
-if (!redisOk) {
+if (!redisOk || !redis) {
   console.error('[worker] Redis is required. Start Redis (docker compose up -d redis) and run again.');
   process.exit(1);
 }
