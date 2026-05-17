@@ -26,6 +26,7 @@ import { warehouseRoutes } from './warehouse/warehouse.routes.js';
 import { storefrontRoutes } from './storefront/storefront.routes.js';
 import { specialOffersRoutes } from './special-offers/special-offers.routes.js';
 import { uploadsRoutes } from './uploads/uploads.routes.js';
+import { valuationRoutes } from './valuation/valuation.routes.js';
 
 export async function registerModules(app: FastifyInstance) {
   await app.register(healthRoutes);
@@ -53,5 +54,6 @@ export async function registerModules(app: FastifyInstance) {
   await app.register(storefrontRoutes);
   await app.register(specialOffersRoutes);
   await app.register(uploadsRoutes);
+  await app.register(valuationRoutes);
   await app.register(wishlistRoutes);
 }
