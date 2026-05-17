@@ -17,7 +17,7 @@ export type ValuationResult = {
   demand: ValuationDemand;
   similarCount: number;
   insight: string;
-  currency: 'TRY';
+  currency: 'EGP';
 };
 
 type ProductRow = Awaited<ReturnType<typeof listProducts>>['items'][number];
@@ -46,7 +46,7 @@ function median(nums: number[]) {
   return s.length % 2 ? s[m]! : (s[m - 1]! + s[m]!) / 2;
 }
 
-function roundTry(n: number) {
+function roundEgp(n: number) {
   return Math.round(n / 50) * 50;
 }
 
@@ -141,14 +141,14 @@ export async function runValuation(body: ValuationBody): Promise<ValuationResult
 
   if (prices.length >= 2) {
     const med = median(prices) * mult;
-    recommended = roundTry(med);
-    min = roundTry(Math.min(...prices) * mult * 0.85);
-    max = roundTry(Math.max(...prices) * mult * 1.15);
+    recommended = roundEgp(med);
+    min = roundEgp(Math.min(...prices) * mult * 0.85);
+    max = roundEgp(Math.max(...prices) * mult * 1.15);
     similarCount = prices.length;
   } else if (prices.length === 1) {
-    recommended = roundTry(prices[0]! * mult);
-    min = roundTry(recommended * 0.7);
-    max = roundTry(recommended * 1.4);
+    recommended = roundEgp(prices[0]! * mult);
+    min = roundEgp(recommended * 0.7);
+    max = roundEgp(recommended * 1.4);
     similarCount = 1;
   } else {
     recommended = 1500;
@@ -190,6 +190,6 @@ export async function runValuation(body: ValuationBody): Promise<ValuationResult
     demand,
     similarCount,
     insight,
-    currency: 'TRY',
+    currency: 'EGP',
   };
 }
