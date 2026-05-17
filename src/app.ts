@@ -2,12 +2,14 @@ import Fastify from 'fastify';
 import { ZodError } from 'zod';
 import { Prisma } from '@prisma/client';
 
+import { env } from './config/env.js';
 import { registerPlugins } from './plugins/index.js';
 import { registerModules } from './modules/index.js';
 import { AppError } from './lib/errors.js';
 
 export async function buildApp() {
   const app = Fastify({
+    trustProxy: env.NODE_ENV === 'production',
     logger: {
       transport: {
         target: 'pino-pretty',

@@ -4,10 +4,11 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { pipeline } from 'node:stream/promises';
 
+import type { FastifyRequest } from 'fastify';
 import type { MultipartFile } from '@fastify/multipart';
 
-import { env } from '../../config/env.js';
 import { AppError } from '../../lib/errors.js';
+import { publicUploadUrl } from '../../lib/public-url.js';
 
 const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -19,7 +20,7 @@ const MIME_TO_EXT: Record<string, string> = {
   'image/gif': '.gif',
 };
 
-export async function saveUpload(file: MultipartFile) {
+export async function saveUpload(file: MultipartFile, request?: FastifyRequest) {
   if (!file.mimetype || !ALLOWED_MIME.has(file.mimetype)) {
     throw new AppError(400, 'Invalid file type. Allowed: JPEG, PNG, WebP, GIF', 'BAD_REQUEST');
   }
@@ -37,6 +38,5 @@ export async function saveUpload(file: MultipartFile) {
   });
   await pipeline(counter, createWriteStream(filepath));
 
-  const base = env.API_PUBLIC_URL ?? `http://localhost:${env.PORT}`;
-  return { url: `${base}/uploads/${filename}`, filename };
+  return { url: publicUploadUrl(filename, request), filename };
 }

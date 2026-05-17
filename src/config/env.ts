@@ -16,6 +16,7 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(32),
   /** Access token TTL (e.g. 15m, 24h, 7d). Shorter is safer for production. */
   JWT_EXPIRES_IN: z.string().min(2).default('24h'),
+  /** Public API base for upload URLs (e.g. https://qeema-vendor.nodeteam.site). Alias: ERP_API_URL */
   API_PUBLIC_URL: z.string().url().optional(),
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().int().positive().optional(),
@@ -30,7 +31,10 @@ const envSchema = z.object({
   COMMISSION_CLEAR_DELAY_MS: z.coerce.number().int().nonnegative().default(3 * 24 * 60 * 60 * 1000),
 });
 
-const parsed = envSchema.safeParse(process.env);
+const parsed = envSchema.safeParse({
+  ...process.env,
+  API_PUBLIC_URL: process.env.API_PUBLIC_URL ?? process.env.ERP_API_URL,
+});
 
 if (!parsed.success) {
   console.error('Invalid environment variables:', parsed.error.flatten().fieldErrors);
@@ -38,3 +42,9 @@ if (!parsed.success) {
 }
 
 export const env = parsed.data;
+
+if (env.NODE_ENV === 'production' && !env.API_PUBLIC_URL) {
+  console.warn(
+    '[env] API_PUBLIC_URL (or ERP_API_URL) is not set. Upload URLs may use the request Host header or fall back to localhost.',
+  );
+}
